@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+:root {
+  --color-forest-900: #0b3d2e;
+  --color-forest-700: #1e7a57;
+  --color-forest-500: #2f9a70;
+  --color-mint-400: #8ff0d6;
+  --color-mint-200: #d3fbef;
+  --color-gold-500: #ffb703;
+  --color-gold-300: #ffd77a;
+  --color-paper: #f3f1e6;
+  --color-paper-dim: #eae5d4;
+  --color-paper-card: #faf8f0;
+  --color-ink-900: #12211b;
+  --color-ink-600: #3c4a44;
+  --color-danger: #c8553d;
+}
+
+@theme inline {
+  --color-forest-900: var(--color-forest-900);
+  --color-forest-700: var(--color-forest-700);
+  --color-forest-500: var(--color-forest-500);
+  --color-mint-400: var(--color-mint-400);
+  --color-mint-200: var(--color-mint-200);
+  --color-gold-500: var(--color-gold-500);
+  --color-gold-300: var(--color-gold-300);
+  --color-paper: var(--color-paper);
+  --color-paper-dim: var(--color-paper-dim);
+  --color-paper-card: var(--color-paper-card);
+  --color-ink-900: var(--color-ink-900);
+  --color-ink-600: var(--color-ink-600);
+  --color-danger: var(--color-danger);
+
+  --font-display: var(--font-display), "Bricolage Grotesque", sans-serif;
+  --font-body: var(--font-body), "Plus Jakarta Sans", sans-serif;
+}
+
+* {
+  border-color: var(--color-ink-900);
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink-900);
+}
+
+/* Subtle paper grain, used behind hero/dark sections and photo cards */
+.bg-grain {
+  position: relative;
+  isolation: isolate;
+}
+
+.bg-grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index: 0;
+}
+
+/* Hand-drawn highlighter mark under emphasised hero text */
+.highlight-mark {
+  position: relative;
+  white-space: nowrap;
+}
+
+.highlight-mark svg {
+  position: absolute;
+  left: -0.15em;
+  right: -0.15em;
+  bottom: -0.08em;
+  width: calc(100% + 0.3em);
+  height: 0.5em;
+  z-index: -1;
+  color: var(--color-gold-500);
+}
+
+/* Washi-tape corner accent for photo/contributor cards */
+.tape-corner::before {
+  content: "";
+  position: absolute;
+  top: -0.6rem;
+  left: 50%;
+  width: 3.25rem;
+  height: 1.35rem;
+  background: color-mix(in srgb, var(--color-gold-300) 80%, white 20%);
+  opacity: 0.85;
+  transform: translateX(-50%) rotate(-3deg);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
+}
+
+/* Torn-paper top edge for cards, instead of a straight rule */
+.torn-top {
+  clip-path: polygon(
+    0% 4%, 4% 1%, 9% 5%, 14% 0%, 20% 4%, 26% 1%, 32% 5%, 38% 2%,
+    44% 5%, 50% 1%, 56% 4%, 62% 0%, 68% 5%, 74% 2%, 80% 5%, 86% 1%,
+    92% 4%, 96% 0%, 100% 4%, 100% 100%, 0% 100%
+  );
+}
+
+.tilt-1 { transform: rotate(-1.5deg); }
+.tilt-2 { transform: rotate(2deg); }
+.tilt-3 { transform: rotate(-2.5deg); }
+.tilt-4 { transform: rotate(1.5deg); }
+
+/* Contributor flip card — a paper-turn, not a slick corporate 3D flip.
+   The shadow lift lives on .flip-card (no transform-style of its own),
+   never on .flip-inner — a filter on the preserve-3d element itself
+   forces Chromium to flatten it, which breaks backface-visibility and
+   lets the mirrored front face show through mid-flip. */
+.flip-card {
+  perspective: 1400px;
+  transition: filter 0.65s ease;
+}
+
+.flip-card:hover,
+.flip-card:focus-within {
+  filter: drop-shadow(10px 14px 18px rgb(11 61 46 / 0.35));
+}
+
+.flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.65s cubic-bezier(0.22, 0.85, 0.28, 1);
+  transform-style: preserve-3d;
+  transform-origin: 8% center;
+}
+
+.flip-card:hover .flip-inner,
+.flip-card:focus-within .flip-inner {
+  transform: rotateY(-172deg) rotateX(3deg) translateZ(6px);
+}
+
+.flip-front,
+.flip-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip-back {
+  transform: rotateY(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
