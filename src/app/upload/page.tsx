@@ -46,7 +46,7 @@ export default function UploadPage() {
 
   async function handleSubmit() {
     if (!file) {
-      setError("Pick a file first — PDF, image, or photo.");
+      setError("Pick a file first — PDF, slides, document, or photo.");
       return;
     }
     setBusy(true);
@@ -85,12 +85,12 @@ export default function UploadPage() {
             <input
               id="file"
               type="file"
-              accept="application/pdf,image/*"
+              accept="application/pdf,image/*,.ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
               className="hidden"
               onChange={handleFile}
             />
             <p className="font-display font-semibold">
-              {file ? file.name : "Tap to choose a PDF, image, or photo"}
+              {file ? file.name : "Tap to choose a PDF, slides, document, or photo"}
             </p>
             {file && (
               <p className="mt-1 text-xs text-ink-600">

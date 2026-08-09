@@ -81,7 +81,7 @@ function AuthForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@student.unilag.edu.ng"
+              placeholder="you@email.com"
               className="w-full rounded-lg border-2 border-ink-900/20 bg-paper px-4 py-3 outline-none focus:border-forest-700"
             />
           </div>
