@@ -20,6 +20,10 @@ export function QuestionCard({
   const [stem, setStem] = useState(question.stem);
   const [options, setOptions] = useState(question.options ?? []);
   const [correctAnswer, setCorrectAnswer] = useState(question.correct_answer ?? "");
+  // The backend doesn't persist option wording yet (see lib/api.ts
+  // patchQuestion) — only which option is correct. Track this locally so we
+  // can be upfront that a wording edit won't survive a reload.
+  const [optionTextEdited, setOptionTextEdited] = useState(false);
 
   const discarded = question.status === "discarded";
   const tilt = ["tilt-1", "tilt-2", "tilt-3", "tilt-4"][index % 4];
@@ -33,6 +37,7 @@ export function QuestionCard({
     const next = [...options];
     next[i] = value;
     setOptions(next);
+    setOptionTextEdited(true);
     const patch: Partial<Question> = { options: next };
     if (wasCorrect) {
       setCorrectAnswer(value);
@@ -125,6 +130,12 @@ export function QuestionCard({
           <p className="pt-1 text-xs text-ink-600">
             Tap a bubble to mark the correct option.
           </p>
+          {optionTextEdited && (
+            <p className="pt-0.5 text-xs font-semibold text-[#8a5a00]">
+              Option wording saves on this device only for now — the correct
+              answer itself still syncs to your account.
+            </p>
+          )}
         </div>
       ) : (
         <div className="mt-4">

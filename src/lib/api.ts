@@ -4,7 +4,7 @@ import {
   QuestionFormat,
   Upload,
 } from "./types";
-import { getToken } from "./session";
+import { getToken, logout } from "./session";
 
 // Thin client around the Floater's FastAPI service (Frontend Role PRD,
 // Section 04). NEXT_PUBLIC_API_BASE_URL points at the deployed backend;
@@ -13,6 +13,17 @@ const REMOTE_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 function endpoint(path: string) {
   return REMOTE_BASE ? `${REMOTE_BASE}${path}` : `/api${path}`;
+}
+
+// Carries the HTTP status so callers can tell a dead resource (404) from a
+// transient failure worth retrying, and so a stale token (401) can be
+// handled globally instead of at every call site.
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -25,8 +36,19 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       ...(init?.headers ?? {}),
     },
   });
+  if (res.status === 401) {
+    logout();
+    if (typeof window !== "undefined") {
+      // This module runs outside any component, so there's no router
+      // instance to push with — a hard navigation is the only option here.
+      const next = encodeURIComponent(window.location.pathname);
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+      window.location.assign(`/auth?next=${next}`);
+    }
+    throw new ApiError(`${init?.method ?? "GET"} ${path} failed: 401`, 401);
+  }
   if (!res.ok) {
-    throw new Error(`${init?.method ?? "GET"} ${path} failed: ${res.status}`);
+    throw new ApiError(`${init?.method ?? "GET"} ${path} failed: ${res.status}`, res.status);
   }
   if (res.status === 204 || (res.status === 200 && res.headers.get("content-length") === "0")) {
     return undefined as T;
@@ -55,13 +77,23 @@ export function presignUpload(filename: string, content_type: string) {
   );
 }
 
-export async function putFile(uploadUrl: string, file: File) {
-  const res = await fetch(uploadUrl, {
-    method: "PUT",
-    body: file,
-    headers: { "Content-Type": file.type || "application/octet-stream" },
+// XHR instead of fetch so large scanned bundles can report upload progress —
+// fetch has no upload-progress event.
+export function putFile(uploadUrl: string, file: File, onProgress?: (pct: number) => void) {
+  return new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("PUT", uploadUrl);
+    xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100));
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) resolve();
+      else reject(new ApiError(`upload PUT failed: ${xhr.status}`, xhr.status));
+    };
+    xhr.onerror = () => reject(new ApiError("upload PUT failed: network error", 0));
+    xhr.send(file);
   });
-  if (!res.ok) throw new Error(`upload PUT failed: ${res.status}`);
 }
 
 export function startUpload(

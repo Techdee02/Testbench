@@ -90,8 +90,8 @@ export default function PracticePage({
           This session isn&apos;t here anymore.
         </p>
         <p className="mt-2 text-ink-600">
-          Sessions live in this browser tab only for now. Head back and start
-          a new one.
+          Sessions live on this device only for now — not synced to your
+          account yet. Head back and start a new one.
         </p>
         <Link href="/upload" className="mt-6 inline-block">
           <Button>Back to upload</Button>

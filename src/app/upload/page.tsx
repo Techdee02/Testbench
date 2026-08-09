@@ -14,6 +14,11 @@ const formats: { value: QuestionFormat; label: string; blurb: string }[] = [
   { value: "theory", label: "Theory only", blurb: "Free recall, no options to lean on" },
 ];
 
+// Placeholder ceiling until Infra's real per-upload limit (PRD section 09)
+// is in place — this just stops an obviously-too-big file from tying up a
+// slow mobile connection with no feedback.
+const MAX_FILE_MB = 25;
+
 export default function UploadPage() {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
@@ -21,13 +26,21 @@ export default function UploadPage() {
   const [format, setFormat] = useState<QuestionFormat>("mixed");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     if (!getToken()) router.replace("/auth?next=/upload");
   }, [router]);
 
   function handleFile(e: ChangeEvent<HTMLInputElement>) {
-    setFile(e.target.files?.[0] ?? null);
+    const picked = e.target.files?.[0] ?? null;
+    if (picked && picked.size > MAX_FILE_MB * 1024 * 1024) {
+      setFile(null);
+      setError(`That file's over ${MAX_FILE_MB}MB — try a smaller scan, or split the bundle up.`);
+      e.target.value = "";
+      return;
+    }
+    setFile(picked);
     setError(null);
   }
 
@@ -38,9 +51,10 @@ export default function UploadPage() {
     }
     setBusy(true);
     setError(null);
+    setProgress(0);
     try {
       const { upload_url, upload_id } = await presignUpload(file.name, file.type);
-      await putFile(upload_url, file);
+      await putFile(upload_url, file, setProgress);
       await startUpload(upload_id, mode, format);
       router.push(`/processing/${upload_id}`);
     } catch {
@@ -133,8 +147,17 @@ export default function UploadPage() {
 
         {error && <p className="text-sm font-semibold text-danger">{error}</p>}
 
+        {busy && (
+          <div className="h-2 w-full max-w-xs overflow-hidden rounded-full bg-paper-dim">
+            <div
+              className="h-full rounded-full bg-forest-700 transition-all"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        )}
+
         <Button onClick={handleSubmit} disabled={busy} className="w-full sm:w-auto">
-          {busy ? "Sending…" : "Upload and structure it"}
+          {busy ? (progress > 0 && progress < 100 ? `Sending… ${progress}%` : "Sending…") : "Upload and structure it"}
         </Button>
       </div>
     </ScreenShell>

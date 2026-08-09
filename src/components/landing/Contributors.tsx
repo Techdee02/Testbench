@@ -26,8 +26,8 @@ export function Contributors() {
           Built by actual students.
         </h2>
         <p className="mt-3 max-w-xl text-mint-200/85">
-          Hover a card. This is the one thing on this page we spent real time
-          on.
+          Hover or tap a card. This is the one thing on this page we spent
+          real time on.
         </p>
 
         <div className="mt-14 grid grid-cols-2 gap-8 sm:grid-cols-4">
@@ -51,10 +51,10 @@ function ContributorCard({
   const hasLinks = contributor.linkedin || contributor.whatsapp;
 
   return (
-    <div
-      className="flip-card aspect-[3/4] w-full"
-      tabIndex={hasLinks ? 0 : -1}
-    >
+    // Focusable regardless of hasLinks — :focus-within is also how the flip
+    // triggers on tap (touch devices don't have :hover), so an open slot
+    // needs to be reachable too, not just cards with real links.
+    <div className="flip-card aspect-[3/4] w-full" tabIndex={0}>
       <div className={`flip-inner ${tilt}`}>
         {/* front */}
         <div className="flip-front tape-corner relative flex h-full flex-col rounded-sm bg-paper-card p-3 shadow-lg ring-1 ring-black/10">
