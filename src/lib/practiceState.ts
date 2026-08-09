@@ -1,4 +1,25 @@
-import { PracticeMode, Question } from "./types";
+import { PracticeMode, Question, QuestionPublicResponse } from "./types";
+
+// Adapts the read-only public shape (from a share link or Discover) into
+// the same Question type the practice/results screens already know how to
+// render. correct_answer/confidence/source_reference are genuinely absent
+// on QuestionPublicResponse — not an oversight, the backend deliberately
+// doesn't hand answers to non-owners — so they're filled with null, which
+// every consumer of Question already treats as "not available".
+export function publicQuestionToQuestion(pq: QuestionPublicResponse): Question {
+  return {
+    id: pq.id,
+    set_id: pq.set_id,
+    question_type: pq.question_type,
+    stem: pq.stem,
+    options: pq.options,
+    correct_answer: null,
+    confidence: null,
+    source_reference: null,
+    status: pq.status as Question["status"],
+    created_at: pq.created_at,
+  };
+}
 
 // The API surface (Frontend Role PRD, Section 04) has no endpoint to
 // hydrate a session's full question objects from just a session id — only

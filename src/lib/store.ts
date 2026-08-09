@@ -1,7 +1,11 @@
 import {
+  DiscoverSetsResponse,
   Question,
   QuestionFormat,
+  QuestionPublicResponse,
   QuestionType,
+  SetVisibility,
+  SetVisibilityResponse,
   Upload,
   PracticeSession,
 } from "./types";
@@ -16,6 +20,16 @@ const questionsBySet = new Map<string, Question[]>();
 const sessions = new Map<string, PracticeSession>();
 const storage = new Map<string, { filename: string; size: number }>();
 const usersByEmail = new Map<string, { id: string; email: string; password: string; token: string }>();
+
+interface SetMeta {
+  id: string;
+  visibility: SetVisibility;
+  share_token: string | null;
+  title: string | null;
+  created_at: string;
+}
+
+const setMetaBySetId = new Map<string, SetMeta>();
 
 const MOCK_USER_ID = "11111111-1111-4111-8111-111111111111";
 
@@ -88,6 +102,13 @@ export function startPipeline(
     current.set_id = setId;
     uploads.set(id, current);
     questionsBySet.set(setId, generateQuestionSet(setId, id, question_format));
+    setMetaBySetId.set(setId, {
+      id: setId,
+      visibility: "private",
+      share_token: null,
+      title: null,
+      created_at: new Date().toISOString(),
+    });
   }, 4500);
 
   return upload;
@@ -134,6 +155,65 @@ export function findQuestionById(id: string) {
     if (found) return found;
   }
   return null;
+}
+
+// Mirrors the real backend's rule: refuses to set a non-private visibility
+// when nothing's confirmed yet. Returns "no_confirmed" so the route handler
+// can respond with the same 400 shape the live API uses.
+export function setSetVisibility(
+  setId: string,
+  visibility: SetVisibility
+): SetVisibilityResponse | "no_confirmed" | null {
+  const meta = setMetaBySetId.get(setId);
+  if (!meta) return null;
+  if (visibility !== "private") {
+    const confirmedCount = (questionsBySet.get(setId) ?? []).filter(
+      (q) => q.status === "confirmed"
+    ).length;
+    if (confirmedCount === 0) return "no_confirmed";
+  }
+  meta.visibility = visibility;
+  meta.share_token = visibility === "shared" ? (meta.share_token ?? uuid()) : null;
+  setMetaBySetId.set(setId, meta);
+  return {
+    id: meta.id,
+    title: meta.title,
+    visibility: meta.visibility,
+    share_token: meta.share_token,
+  };
+}
+
+export function getSetByShareToken(token: string): QuestionPublicResponse[] | null {
+  for (const meta of setMetaBySetId.values()) {
+    if (meta.visibility === "shared" && meta.share_token === token) {
+      const questions = questionsBySet.get(meta.id) ?? [];
+      return questions
+        .filter((q) => q.status !== "discarded")
+        .map((q) => ({
+          id: q.id,
+          set_id: q.set_id,
+          question_type: q.question_type,
+          stem: q.stem,
+          options: q.options,
+          status: q.status,
+          created_at: q.created_at,
+        }));
+    }
+  }
+  return null;
+}
+
+export function listDiscoverSets(page: number, pageSize: number): DiscoverSetsResponse {
+  const publicSets = [...setMetaBySetId.values()].filter((m) => m.visibility === "public");
+  const total = publicSets.length;
+  const start = (page - 1) * pageSize;
+  const items = publicSets.slice(start, start + pageSize).map((m) => ({
+    id: m.id,
+    title: m.title,
+    question_count: (questionsBySet.get(m.id) ?? []).filter((q) => q.status !== "discarded").length,
+    created_at: m.created_at,
+  }));
+  return { items, page, page_size: pageSize, total };
 }
 
 // Deterministic-feeling fixture bank. Stands in for real OCR+LLM output so

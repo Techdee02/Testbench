@@ -1,10 +1,12 @@
 "use client";
 
 import { Suspense, use, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ScreenShell } from "@/components/ScreenShell";
 import { Button } from "@/components/ui/Button";
 import { QuestionCard } from "@/components/confirm/QuestionCard";
+import { ShareControl } from "@/components/confirm/ShareControl";
 import { getQuestions, patchQuestion, createSession } from "@/lib/api";
 import { getToken } from "@/lib/session";
 import { PracticeMode, Question } from "@/lib/types";
@@ -51,6 +53,25 @@ function ConfirmScreen({
     } catch {
       setError("A change didn't save. Check your connection and try again.");
     }
+  }
+
+  // Additive, for the share/publish control below — deliberately separate
+  // from handleStartPractice's own confirm step rather than a shared
+  // refactor, so the existing start-practice path stays untouched.
+  async function confirmPendingQuestions() {
+    if (!questions) return;
+    const toConfirm = questions.filter((q) => q.status === "pending_review");
+    if (toConfirm.length === 0) return;
+    await Promise.all(
+      toConfirm.map((q) => patchQuestion(q.id, { status: "confirmed" }))
+    );
+    setQuestions((prev) =>
+      prev
+        ? prev.map((q) =>
+            q.status === "pending_review" ? { ...q, status: "confirmed" } : q
+          )
+        : prev
+    );
   }
 
   async function handleStartPractice() {
@@ -121,6 +142,20 @@ function ConfirmScreen({
           </>
         )}
       </p>
+
+      <div className="mt-6">
+        <ShareControl
+          setId={setId}
+          canPublish={active.length > 0}
+          onBeforePublish={confirmPendingQuestions}
+        />
+        <Link
+          href={`/print/${setId}`}
+          className="mt-3 inline-block text-sm font-semibold text-forest-700 hover:underline"
+        >
+          Print this set
+        </Link>
+      </div>
 
       <div className="mt-8 space-y-6">
         {active.length === 0 && (

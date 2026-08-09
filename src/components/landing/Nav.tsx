@@ -27,6 +27,12 @@ export function Nav() {
           </span>
         </Link>
         <nav className="flex items-center gap-3">
+          <Link
+            href="/discover"
+            className="hidden text-sm font-semibold text-ink-900 hover:text-forest-700 sm:inline"
+          >
+            Discover
+          </Link>
           {email ? (
             <>
               <span className="hidden text-sm text-ink-600 sm:inline">{email}</span>

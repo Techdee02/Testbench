@@ -1,7 +1,11 @@
 import {
+  DiscoverSetsResponse,
   PracticeMode,
   Question,
   QuestionFormat,
+  QuestionPublicResponse,
+  SetVisibility,
+  SetVisibilityResponse,
   Upload,
 } from "./types";
 import { getToken, logout } from "./session";
@@ -26,8 +30,17 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = getToken();
+interface RequestOptions extends RequestInit {
+  // For genuinely public routes (share links, Discover) — never attaches a
+  // token even if the visitor happens to be signed in, and a 401 doesn't
+  // trigger the log-out-and-redirect flow below (a stray 401 on a route
+  // that isn't supposed to need auth shouldn't boot a signed-in visitor
+  // out of their own session).
+  skipAuth?: boolean;
+}
+
+async function request<T>(path: string, init?: RequestOptions): Promise<T> {
+  const token = init?.skipAuth ? null : getToken();
   const res = await fetch(endpoint(path), {
     ...init,
     headers: {
@@ -36,7 +49,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       ...(init?.headers ?? {}),
     },
   });
-  if (res.status === 401) {
+  if (res.status === 401 && !init?.skipAuth) {
     logout();
     if (typeof window !== "undefined") {
       // This module runs outside any component, so there's no router
@@ -134,6 +147,29 @@ export function createSession(setId: string, mode: PracticeMode) {
     method: "POST",
     body: JSON.stringify({ set_id: setId, mode }),
   });
+}
+
+export function setVisibility(setId: string, visibility: SetVisibility) {
+  return request<SetVisibilityResponse>(`/sets/${setId}/visibility`, {
+    method: "PATCH",
+    body: JSON.stringify({ visibility }),
+  });
+}
+
+// Public routes — no auth required, and none sent even if a token happens
+// to be present (a signed-in student can still open someone else's share
+// link without it being treated as their own request).
+export function getSharedSet(token: string) {
+  return request<QuestionPublicResponse[]>(`/sets/shared/${token}`, {
+    skipAuth: true,
+  });
+}
+
+export function getDiscoverSets(page: number, pageSize: number) {
+  return request<DiscoverSetsResponse>(
+    `/discover/sets?page=${page}&page_size=${pageSize}`,
+    { skipAuth: true }
+  );
 }
 
 export function submitAnswer(

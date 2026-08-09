@@ -36,19 +36,29 @@ handled):
   MCQ answer choices only persist to `stem`/`correct_answer`/`status` —
   option wording stays local to the confirm screen until the backend adds
   it.
-- `POST /uploads/:id/start`'s response doesn't echo `upload_id` — the
-  frontend already sources it from `POST /uploads/presign` instead, never
-  from `/start`'s response.
+- There's no request field or endpoint to set a set's `title` yet — every
+  set comes back `title: null`. The share/publish control has a name field
+  in local state for when that lands (see `ShareControl.tsx`); it isn't
+  sent anywhere yet.
+- Discover items don't carry a `share_token` (only non-null for
+  `visibility: "shared"` sets, confirmed live), and there's no
+  fetch-by-id route for a `public` set either — a `/discover/sets` item
+  has no working path to its questions today. The Discover page lists
+  title/count only; it doesn't link through to a set. This is flagged as
+  a real gap, not guessed at with an invented endpoint.
 
 ## What's here
 
 - `src/app/` — screens: landing, `/auth`, `/upload`, `/processing/[id]`,
-  `/confirm/[id]`, `/practice/[id]`, `/results/[id]`
+  `/confirm/[setId]`, `/practice/[id]`, `/results/[id]`, plus sharing:
+  `/discover`, `/shared/[token]` (public, read-only), `/print/[setId]`
+  (owner) and `/shared/[token]/print` (shared)
 - `src/app/api/` — mock backend (in-memory store in `src/lib/store.ts`)
   standing in for the Floater's FastAPI service until it's live
-- `src/components/` — shared UI, landing sections, and the confirm
-  screen's question card
+- `src/components/` — shared UI, landing sections, the confirm screen's
+  question card and share/publish control, and the read-only question
+  list used by both the shared view and print
 - `src/lib/` — typed API client, session/practice-state helpers, shared types
 
-The confirm screen (`/confirm/[id]`) is the product's trust mechanism —
+The confirm screen (`/confirm/[setId]`) is the product's trust mechanism —
 see the PRD before changing its behavior.

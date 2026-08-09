@@ -45,3 +45,42 @@ export interface PracticeSession {
   question_ids: string[];
   created_at: string;
 }
+
+export type SetVisibility = "private" | "shared" | "public";
+
+export interface SetVisibilityResponse {
+  id: string;
+  title: string | null;
+  visibility: SetVisibility;
+  // Only non-null when visibility is "shared" — null for "private" and
+  // "public" (confirmed against the live backend).
+  share_token: string | null;
+}
+
+// The read-only shape GET /sets/shared/:token returns to non-owners.
+// Deliberately missing correct_answer, confidence, and source_reference
+// vs. the owner's Question — don't spoil answers or leak review metadata
+// to whoever the link gets shared with.
+export interface QuestionPublicResponse {
+  id: string;
+  set_id: string;
+  question_type: QuestionType;
+  stem: string;
+  options: string[] | null;
+  status: QuestionStatus;
+  created_at: string;
+}
+
+export interface DiscoverSetItem {
+  id: string;
+  title: string | null;
+  question_count: number;
+  created_at: string;
+}
+
+export interface DiscoverSetsResponse {
+  items: DiscoverSetItem[];
+  page: number;
+  page_size: number;
+  total: number;
+}

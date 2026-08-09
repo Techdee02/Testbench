@@ -17,7 +17,15 @@ export function ScreenShell({
           <Logo tone="ink" className="h-7 w-7" />
           <span className="font-display text-lg font-bold">Testbench</span>
         </Link>
-        <AuthStatus />
+        <div className="flex items-center gap-4">
+          <Link
+            href="/discover"
+            className="hidden text-sm font-semibold text-ink-600 hover:text-forest-700 sm:inline"
+          >
+            Discover
+          </Link>
+          <AuthStatus />
+        </div>
       </header>
       <main
         className={`mx-auto w-full flex-1 px-6 py-12 ${
