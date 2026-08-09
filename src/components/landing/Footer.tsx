@@ -1,12 +1,13 @@
 import { Logo } from "@/components/Logo";
 
-// Social hrefs are placeholders — point these at SEES Tech Hub's real
-// handles before launch.
+// Ordered by priority, not alphabetically: LinkedIn is SEES Tech Hub's
+// biggest page, WhatsApp is the biggest community and where the group
+// actually lives day to day.
 const socials = [
-  { label: "Instagram", href: "#" },
-  { label: "X", href: "#" },
-  { label: "LinkedIn", href: "#" },
-  { label: "WhatsApp community", href: "#" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/company/sees-tech-hub/" },
+  { label: "WhatsApp community", href: "https://chat.whatsapp.com/JAIc2yFhyqAL30lD3bBXis?s=cl&p=a&mlu=4" },
+  { label: "X", href: "https://x.com/SEESTechHub" },
+  { label: "Instagram", href: "https://www.instagram.com/sees_techhub?igsh=MTBobjdsNXp3OTdoYQ==" },
 ];
 
 export function Footer() {
@@ -22,7 +23,13 @@ export function Footer() {
 
         <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-ink-600">
           {socials.map((s) => (
-            <a key={s.label} href={s.href} className="hover:text-forest-700">
+            <a
+              key={s.label}
+              href={s.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-forest-700"
+            >
               {s.label}
             </a>
           ))}
