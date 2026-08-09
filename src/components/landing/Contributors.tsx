@@ -10,15 +10,43 @@ type Contributor = {
   whatsapp?: string;
 };
 
-// Still missing personal LinkedIn/WhatsApp links for the flip-card backs —
-// swap those in before launch. Infra and Design are genuinely open invite
-// slots, not placeholders for someone unnamed.
 const contributors: Contributor[] = [
-  { name: "Akeem Jr Odebiyi", role: "Project Lead", initials: "AO", paper: "bg-mint-200", photo: "/Akeem.jpg" },
-  { name: "Eyitayo Obembe", role: "Backend & Pipeline", initials: "EO", paper: "bg-gold-300", photo: "/Eyitayo.PNG" },
-  { name: "Henry Fakorode", role: "Backend (Floater)", initials: "HF", paper: "bg-mint-400", photo: "/Henry.jpg" },
-  { name: "Afolabi Olanrewaju", role: "Publicity Graphics Designer", initials: "AF", paper: "bg-gold-500/30" },
-  { name: "—", role: "Design (open)", initials: "DS", paper: "bg-paper-dim" },
+  {
+    name: "Akeem Jr Odebiyi",
+    role: "Project Lead · Full Stack & Infra",
+    initials: "AO",
+    paper: "bg-mint-200",
+    photo: "/Akeem.jpg",
+    linkedin: "https://www.linkedin.com/in/akeem-jr-odebiyi",
+    whatsapp: "https://wa.me/2348059059440",
+  },
+  {
+    name: "Eyitayo Obembe",
+    role: "Backend & Pipeline",
+    initials: "EO",
+    paper: "bg-gold-300",
+    photo: "/Eyitayo.PNG",
+    linkedin: "https://www.linkedin.com/in/eyitayo-obembe",
+    whatsapp: "https://wa.me/2348085716180",
+  },
+  {
+    name: "Henry Fakorode",
+    role: "Backend & API",
+    initials: "HF",
+    paper: "bg-mint-400",
+    photo: "/Henry.jpg",
+    linkedin: "https://www.linkedin.com/in/fakorode-henry",
+    whatsapp: "https://wa.me/2348100597712",
+  },
+  {
+    name: "Afolabi Olanrewaju",
+    role: "Publicity Graphics Designer",
+    initials: "AF",
+    paper: "bg-gold-500/30",
+    photo: "/Afolabi.jpg",
+    linkedin: "https://www.linkedin.com/in/afolabi-olanrewaju-035a43338",
+    whatsapp: "https://wa.me/2349076286446",
+  },
 ];
 
 export function Contributors() {
@@ -102,6 +130,8 @@ function ContributorCard({
                 {contributor.linkedin && (
                   <a
                     href={contributor.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="rounded-full bg-mint-400 px-3 py-1.5 text-xs font-bold text-forest-900"
                   >
                     LinkedIn
@@ -110,6 +140,8 @@ function ContributorCard({
                 {contributor.whatsapp && (
                   <a
                     href={contributor.whatsapp}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="rounded-full bg-gold-500 px-3 py-1.5 text-xs font-bold text-forest-900"
                   >
                     WhatsApp
