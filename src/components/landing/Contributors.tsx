@@ -7,13 +7,13 @@ type Contributor = {
   whatsapp?: string;
 };
 
-// Placeholder roster — swap in the real build team's photos and links
-// before launch. Names/roles reflect what's actually documented in the
-// role PRDs (Akeem owns Frontend, "the Floater" is the PRDs' own name for
-// whoever owns the FastAPI service); the rest are open invite slots.
+// Real names, still missing real photos/links — swap those in before
+// launch. Infra and Design are genuinely open invite slots, not
+// placeholders for someone unnamed.
 const contributors: Contributor[] = [
-  { name: "Akeem", role: "Frontend", initials: "AK", paper: "bg-mint-200" },
-  { name: "The Floater", role: "Backend & API", initials: "FL", paper: "bg-gold-300" },
+  { name: "Akeem Jr Odebiyi", role: "Project Lead", initials: "AO", paper: "bg-mint-200" },
+  { name: "Eyitayo Obembe", role: "Backend & Pipeline", initials: "EO", paper: "bg-gold-300" },
+  { name: "Henry Fakorode", role: "Backend (Floater)", initials: "HF", paper: "bg-mint-400" },
   { name: "—", role: "Infra (open)", initials: "IN", paper: "bg-paper-dim" },
   { name: "—", role: "Design (open)", initials: "DS", paper: "bg-paper-dim" },
 ];
