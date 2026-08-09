@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { LinkButton } from "@/components/ui/Button";
+import { MobileMenu } from "@/components/MobileMenu";
 import { getUserEmail, logout } from "@/lib/session";
 
 export function Nav() {
@@ -64,6 +65,7 @@ export function Nav() {
               </LinkButton>
             </>
           )}
+          <MobileMenu />
         </nav>
       </div>
     </header>

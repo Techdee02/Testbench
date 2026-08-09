@@ -17,8 +17,11 @@ export function AuthStatus() {
   if (!email) return null;
 
   return (
-    <div className="flex items-center gap-3 text-xs">
-      <span className="hidden text-ink-600 sm:inline">{email}</span>
+    // Hidden below sm — MobileMenu covers email + log out there instead,
+    // so there isn't a second, half-hidden log-out control floating in
+    // the header on a phone.
+    <div className="hidden items-center gap-3 text-xs sm:flex">
+      <span className="text-ink-600">{email}</span>
       <button
         type="button"
         onClick={() => {

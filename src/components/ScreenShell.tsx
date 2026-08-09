@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ReactNode } from "react";
 import { Logo } from "@/components/Logo";
 import { AuthStatus } from "@/components/AuthStatus";
+import { MobileMenu } from "@/components/MobileMenu";
 
 export function ScreenShell({
   children,
@@ -25,6 +26,7 @@ export function ScreenShell({
             Discover
           </Link>
           <AuthStatus />
+          <MobileMenu />
         </div>
       </header>
       <main
