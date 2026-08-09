@@ -14,7 +14,7 @@ const contributors: Contributor[] = [
   { name: "Akeem Jr Odebiyi", role: "Project Lead", initials: "AO", paper: "bg-mint-200" },
   { name: "Eyitayo Obembe", role: "Backend & Pipeline", initials: "EO", paper: "bg-gold-300" },
   { name: "Henry Fakorode", role: "Backend (Floater)", initials: "HF", paper: "bg-mint-400" },
-  { name: "—", role: "Infra (open)", initials: "IN", paper: "bg-paper-dim" },
+  { name: "Afolabi Olanrewaju", role: "Publicity Graphics Designer", initials: "AF", paper: "bg-gold-500/30" },
   { name: "—", role: "Design (open)", initials: "DS", paper: "bg-paper-dim" },
 ];
 
