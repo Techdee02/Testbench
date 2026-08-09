@@ -70,22 +70,33 @@ export default function ResultsPage({
         <h2 className="font-display text-lg font-bold">
           {missed.length === 0
             ? "Nothing missed. Genuinely."
-            : `Worth another look (${missed.length})`}
+            : `${missed.length} worth another look`}
         </h2>
         <div className="mt-4 space-y-4">
-          {missed.map(({ question }, i) => (
+          {results.answers.map(({ question, correct: wasCorrect }, i) => (
             <div
               key={question.id + i}
-              className="rounded-lg border-2 border-ink-900/10 bg-paper-card p-5"
+              className={`rounded-lg border-2 p-5 ${
+                wasCorrect
+                  ? "border-ink-900/10 bg-paper-card"
+                  : "border-gold-500/60 bg-gold-500/10"
+              }`}
             >
               <div className="mb-2 flex items-center gap-2">
                 <Tag tone="ink">{question.question_type === "mcq" ? "MCQ" : "Theory"}</Tag>
+                {wasCorrect ? (
+                  <Tag tone="mint">Correct</Tag>
+                ) : (
+                  <Tag tone="gold">⚑ Worth another look</Tag>
+                )}
               </div>
               <p className="font-semibold">{question.stem}</p>
-              <p className="mt-2 text-sm text-forest-700">
-                <span className="font-bold">Correct answer: </span>
-                {question.correct_answer ?? "Not available"}
-              </p>
+              {!wasCorrect && (
+                <p className="mt-2 text-sm text-forest-700">
+                  <span className="font-bold">Correct answer: </span>
+                  {question.correct_answer ?? "Not available"}
+                </p>
+              )}
             </div>
           ))}
         </div>
