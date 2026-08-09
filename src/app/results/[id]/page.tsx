@@ -84,7 +84,7 @@ export default function ResultsPage({
               <p className="font-semibold">{question.stem}</p>
               <p className="mt-2 text-sm text-forest-700">
                 <span className="font-bold">Correct answer: </span>
-                {question.correct_answer}
+                {question.correct_answer ?? "Not available"}
               </p>
             </div>
           ))}

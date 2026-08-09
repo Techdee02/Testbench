@@ -1,17 +1,25 @@
-const KEY = "testbench_user_email";
+const EMAIL_KEY = "testbench_user_email";
+const TOKEN_KEY = "testbench_token";
 
-// No auth endpoint is defined in the Frontend Role PRD's API surface —
-// v1 auth is intentionally just enough to persist a session locally.
-// Swap this for real cookie/JWT session handling once Backend ships one.
 export function getUserEmail(): string | null {
   if (typeof window === "undefined") return null;
-  return window.localStorage.getItem(KEY);
+  return window.localStorage.getItem(EMAIL_KEY);
 }
 
 export function setUserEmail(email: string) {
-  window.localStorage.setItem(KEY, email);
+  window.localStorage.setItem(EMAIL_KEY, email);
 }
 
-export function clearUserEmail() {
-  window.localStorage.removeItem(KEY);
+export function getToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return window.localStorage.getItem(TOKEN_KEY);
+}
+
+export function setToken(token: string) {
+  window.localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function logout() {
+  window.localStorage.removeItem(EMAIL_KEY);
+  window.localStorage.removeItem(TOKEN_KEY);
 }

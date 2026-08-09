@@ -19,7 +19,7 @@ export function QuestionCard({
 }) {
   const [stem, setStem] = useState(question.stem);
   const [options, setOptions] = useState(question.options ?? []);
-  const [correctAnswer, setCorrectAnswer] = useState(question.correct_answer);
+  const [correctAnswer, setCorrectAnswer] = useState(question.correct_answer ?? "");
 
   const discarded = question.status === "discarded";
   const tilt = ["tilt-1", "tilt-2", "tilt-3", "tilt-4"][index % 4];
@@ -47,7 +47,7 @@ export function QuestionCard({
   }
 
   function commitTheoryAnswer() {
-    if (correctAnswer !== question.correct_answer) {
+    if (correctAnswer !== (question.correct_answer ?? "")) {
       onChange({ correct_answer: correctAnswer });
     }
   }
@@ -64,9 +64,11 @@ export function QuestionCard({
           {question.confidence === "low" && (
             <Tag tone="gold">⚑ Low confidence — check this one</Tag>
           )}
-          <span className="text-xs text-ink-600">
-            p.{question.source_reference.page}
-          </span>
+          {question.source_reference?.page != null && (
+            <span className="text-xs text-ink-600">
+              p.{question.source_reference.page}
+            </span>
+          )}
         </div>
         {discarded ? (
           <button

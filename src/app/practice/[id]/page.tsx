@@ -110,7 +110,7 @@ export default function PracticePage({
       correct: result.correct,
     });
     setLastCorrect(result.correct);
-    setLastCorrectAnswer(result.correct_answer);
+    setLastCorrectAnswer(result.correct_answer ?? question.correct_answer ?? "");
     setRevealed(true);
   }
 
@@ -127,7 +127,7 @@ export default function PracticePage({
       correct: result.correct,
     });
     setLastCorrect(result.correct);
-    setLastCorrectAnswer(result.correct_answer);
+    setLastCorrectAnswer(result.correct_answer ?? question.correct_answer ?? "");
     setRevealed(true);
   }
 
@@ -206,7 +206,7 @@ export default function PracticePage({
                 <Button
                   variant="secondary"
                   onClick={async () => {
-                    setLastCorrectAnswer(question.correct_answer);
+                    setLastCorrectAnswer(question.correct_answer ?? "");
                     setRevealed(true);
                   }}
                 >

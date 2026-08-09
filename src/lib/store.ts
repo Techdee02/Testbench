@@ -7,19 +7,34 @@ import {
 } from "./types";
 
 // In-memory mock backend. Stands in for the Floater's FastAPI service +
-// Postgres until Infra hands over a real base URL. Shapes match Section 04
-// of the Frontend Role PRD exactly, so swapping the base URL later is a
-// find-and-replace, not a rewrite.
+// Postgres now deployed at NEXT_PUBLIC_API_BASE_URL; this only runs when
+// that env var is unset, e.g. for offline frontend work. Shapes match the
+// real backend's OpenAPI schema, not just the original PRD sketch.
 
 const uploads = new Map<string, Upload>();
 const questionsBySet = new Map<string, Question[]>();
 const sessions = new Map<string, PracticeSession>();
 const storage = new Map<string, { filename: string; size: number }>();
+const usersByEmail = new Map<string, { id: string; email: string; password: string; token: string }>();
 
 const MOCK_USER_ID = "11111111-1111-4111-8111-111111111111";
 
 function uuid() {
   return crypto.randomUUID();
+}
+
+export function createUser(email: string, password: string) {
+  if (usersByEmail.has(email)) return null;
+  const id = uuid();
+  const user = { id, email, password, token: `mock.${id}` };
+  usersByEmail.set(email, user);
+  return user;
+}
+
+export function verifyUser(email: string, password: string) {
+  const user = usersByEmail.get(email);
+  if (!user || user.password !== password) return null;
+  return user;
 }
 
 export function createUpload(filename: string) {

@@ -4,7 +4,8 @@ import { FormEvent, Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ScreenShell } from "@/components/ScreenShell";
 import { Button } from "@/components/ui/Button";
-import { setUserEmail } from "@/lib/session";
+import { login, signup } from "@/lib/api";
+import { setToken, setUserEmail } from "@/lib/session";
 
 type Mode = "signup" | "login";
 
@@ -14,13 +15,27 @@ function AuthForm() {
   const next = params.get("next") ?? "/upload";
   const [mode, setMode] = useState<Mode>("signup");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setSubmitting(true);
-    setUserEmail(email);
-    router.push(next);
+    setError(null);
+    try {
+      const { token } = await (mode === "signup" ? signup(email, password) : login(email, password));
+      setToken(token);
+      setUserEmail(email);
+      router.push(next);
+    } catch {
+      setError(
+        mode === "signup"
+          ? "Couldn't create that account — maybe it already exists?"
+          : "That email and password didn't match."
+      );
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -31,7 +46,10 @@ function AuthForm() {
             <button
               key={m}
               type="button"
-              onClick={() => setMode(m)}
+              onClick={() => {
+                setMode(m);
+                setError(null);
+              }}
               className={`rounded-full px-4 py-1.5 text-sm font-display font-semibold transition-colors ${
                 mode === m
                   ? "bg-forest-900 text-mint-200"
@@ -47,8 +65,9 @@ function AuthForm() {
           {mode === "signup" ? "Save your first set." : "Welcome back."}
         </h1>
         <p className="mt-2 text-sm text-ink-600">
-          Email only — your question sets and progress follow you between
-          your phone and your laptop. No verification email to dig through.
+          Email and a password — your question sets and progress follow you
+          between your phone and your laptop. No verification email to dig
+          through.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -66,8 +85,28 @@ function AuthForm() {
               className="w-full rounded-lg border-2 border-ink-900/20 bg-paper px-4 py-3 outline-none focus:border-forest-700"
             />
           </div>
+          <div>
+            <label htmlFor="password" className="mb-1.5 block text-sm font-semibold">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              required
+              minLength={6}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="At least 6 characters"
+              className="w-full rounded-lg border-2 border-ink-900/20 bg-paper px-4 py-3 outline-none focus:border-forest-700"
+            />
+          </div>
+          {error && <p className="text-sm font-semibold text-danger">{error}</p>}
           <Button type="submit" disabled={submitting} className="w-full">
-            {mode === "signup" ? "Create account" : "Log in"}
+            {submitting
+              ? "One sec…"
+              : mode === "signup"
+                ? "Create account"
+                : "Log in"}
           </Button>
         </form>
       </div>

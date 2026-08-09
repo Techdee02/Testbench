@@ -1,10 +1,11 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ScreenShell } from "@/components/ScreenShell";
 import { Button } from "@/components/ui/Button";
 import { presignUpload, putFile, startUpload } from "@/lib/api";
+import { getToken } from "@/lib/session";
 import { PracticeMode, QuestionFormat } from "@/lib/types";
 
 const formats: { value: QuestionFormat; label: string; blurb: string }[] = [
@@ -20,6 +21,10 @@ export default function UploadPage() {
   const [format, setFormat] = useState<QuestionFormat>("mixed");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!getToken()) router.replace("/auth?next=/upload");
+  }, [router]);
 
   function handleFile(e: ChangeEvent<HTMLInputElement>) {
     setFile(e.target.files?.[0] ?? null);

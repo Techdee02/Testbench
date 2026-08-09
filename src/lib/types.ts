@@ -8,9 +8,9 @@ export type QuestionStatus = "pending_review" | "confirmed" | "discarded";
 export interface Upload {
   id: string;
   user_id: string;
-  file_hash: string;
+  file_hash: string | null;
   storage_key: string;
-  filename: string;
+  filename?: string;
   status: UploadStatus;
   practice_mode: PracticeMode | null;
   question_format: QuestionFormat | null;
@@ -18,8 +18,8 @@ export interface Upload {
 }
 
 export interface SourceReference {
-  upload_id: string;
-  page: number;
+  upload_id?: string;
+  page?: number;
 }
 
 export interface Question {
@@ -28,9 +28,9 @@ export interface Question {
   question_type: QuestionType;
   stem: string;
   options: string[] | null;
-  correct_answer: string;
-  confidence: Confidence;
-  source_reference: SourceReference;
+  correct_answer: string | null;
+  confidence: Confidence | null;
+  source_reference: SourceReference | null;
   status: QuestionStatus;
   created_at: string;
 }

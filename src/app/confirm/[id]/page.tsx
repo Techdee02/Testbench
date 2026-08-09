@@ -6,6 +6,7 @@ import { ScreenShell } from "@/components/ScreenShell";
 import { Button } from "@/components/ui/Button";
 import { QuestionCard } from "@/components/confirm/QuestionCard";
 import { getQuestions, getUploadStatus, patchQuestion, createSession } from "@/lib/api";
+import { getToken } from "@/lib/session";
 import { PracticeMode, Question } from "@/lib/types";
 import { storeSession } from "@/lib/practiceState";
 
@@ -22,13 +23,17 @@ export default function ConfirmPage({
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    if (!getToken()) {
+      router.replace("/auth?next=/upload");
+      return;
+    }
     Promise.all([getQuestions(id), getUploadStatus(id)])
       .then(([qs, upload]) => {
         setQuestions(qs);
         setMode(upload.practice_mode ?? "untimed");
       })
       .catch(() => setError("Couldn't load this set. Try refreshing."));
-  }, [id]);
+  }, [id, router]);
 
   function updateLocal(questionId: string, patch: Partial<Question>) {
     setQuestions((prev) =>

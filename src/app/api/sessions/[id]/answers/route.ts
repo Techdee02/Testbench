@@ -25,7 +25,7 @@ export async function POST(
 
   const correct =
     question.question_type === "mcq"
-      ? submitted.trim() === question.correct_answer.trim()
+      ? submitted.trim() === (question.correct_answer ?? "").trim()
       : submitted.trim().toLowerCase() === "correct";
 
   return NextResponse.json({ correct, correct_answer: question.correct_answer });
