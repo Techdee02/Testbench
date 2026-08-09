@@ -14,6 +14,9 @@ export interface Upload {
   status: UploadStatus;
   practice_mode: PracticeMode | null;
   question_format: QuestionFormat | null;
+  // Distinct from `id` by design — only present once status is "ready".
+  // GET /sets/:id/questions needs this, not the upload's own id.
+  set_id?: string | null;
   created_at: string;
 }
 

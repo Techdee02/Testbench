@@ -19,8 +19,7 @@ export async function POST(
 
   const upload = startPipeline(id, practice_mode, question_format);
 
-  return NextResponse.json(
-    { upload_id: upload!.id, status: upload!.status },
-    { status: 202 }
-  );
+  // Matches the real backend: no upload_id echoed back here on purpose —
+  // callers must already have it from POST /uploads/presign.
+  return NextResponse.json({ status: upload!.status }, { status: 202 });
 }

@@ -49,6 +49,7 @@ export function createUpload(filename: string) {
     status: "uploaded",
     practice_mode: null,
     question_format: null,
+    set_id: null,
     created_at: new Date().toISOString(),
   };
   uploads.set(id, upload);
@@ -76,13 +77,17 @@ export function startPipeline(
   uploads.set(id, upload);
 
   // Simulate OCR + LLM structuring latency. Runs async so the frontend can
-  // exercise its real polling loop against GET /uploads/:id.
+  // exercise its real polling loop against GET /uploads/:id. The set gets
+  // its own id here — deliberately distinct from the upload id, matching
+  // the real backend, so the frontend can't get away with conflating them.
   setTimeout(() => {
     const current = uploads.get(id);
     if (!current) return;
+    const setId = uuid();
     current.status = "ready";
+    current.set_id = setId;
     uploads.set(id, current);
-    questionsBySet.set(id, generateQuestionSet(id, question_format));
+    questionsBySet.set(setId, generateQuestionSet(setId, id, question_format));
   }, 4500);
 
   return upload;
@@ -210,7 +215,7 @@ const QUESTION_BANK: Array<{
   },
 ];
 
-function generateQuestionSet(setId: string, format: QuestionFormat): Question[] {
+function generateQuestionSet(setId: string, uploadId: string, format: QuestionFormat): Question[] {
   const pool = QUESTION_BANK.filter((q) =>
     format === "mixed" ? true : q.type === format
   );
@@ -224,7 +229,7 @@ function generateQuestionSet(setId: string, format: QuestionFormat): Question[] 
     options: item.type === "mcq" ? item.options ?? null : null,
     correct_answer: item.correct_answer,
     confidence: item.confidence,
-    source_reference: { upload_id: setId, page: (index % 4) + 1 },
+    source_reference: { upload_id: uploadId, page: (index % 4) + 1 },
     status: "pending_review",
     created_at: new Date().toISOString(),
   }));

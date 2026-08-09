@@ -48,7 +48,15 @@ export default function ProcessingPage({
         const upload = await getUploadStatus(id);
         if (cancelled) return;
         if (upload.status === "ready") {
-          router.push(`/confirm/${id}`);
+          // set_id is a distinct id from the upload's own — GET /sets/:id/
+          // questions needs that one, not this page's upload id.
+          if (!upload.set_id) {
+            console.error("upload marked ready with no set_id", upload);
+            setFailed(true);
+            return;
+          }
+          const mode = upload.practice_mode ?? "untimed";
+          router.push(`/confirm/${upload.set_id}?mode=${mode}`);
           return;
         }
         if (upload.status === "failed") {
