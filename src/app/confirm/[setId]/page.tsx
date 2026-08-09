@@ -1,24 +1,28 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, use, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ScreenShell } from "@/components/ScreenShell";
 import { Button } from "@/components/ui/Button";
 import { QuestionCard } from "@/components/confirm/QuestionCard";
-import { getQuestions, getUploadStatus, patchQuestion, createSession } from "@/lib/api";
+import { getQuestions, patchQuestion, createSession } from "@/lib/api";
 import { getToken } from "@/lib/session";
 import { PracticeMode, Question } from "@/lib/types";
 import { storeSession } from "@/lib/practiceState";
 
-export default function ConfirmPage({
+function ConfirmScreen({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ setId: string }>;
 }) {
-  const { id } = use(params);
+  const { setId } = use(params);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // The upload's chosen practice mode rides along as a query param from the
+  // processing page — this route only has the set id, which is distinct
+  // from the upload's own id, so there's no upload record to fetch it from.
+  const mode: PracticeMode = searchParams.get("mode") === "timed" ? "timed" : "untimed";
   const [questions, setQuestions] = useState<Question[] | null>(null);
-  const [mode, setMode] = useState<PracticeMode>("untimed");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -27,13 +31,10 @@ export default function ConfirmPage({
       router.replace("/auth?next=/upload");
       return;
     }
-    Promise.all([getQuestions(id), getUploadStatus(id)])
-      .then(([qs, upload]) => {
-        setQuestions(qs);
-        setMode(upload.practice_mode ?? "untimed");
-      })
+    getQuestions(setId)
+      .then(setQuestions)
       .catch(() => setError("Couldn't load this set. Try refreshing."));
-  }, [id, router]);
+  }, [setId, router]);
 
   function updateLocal(questionId: string, patch: Partial<Question>) {
     setQuestions((prev) =>
@@ -61,7 +62,7 @@ export default function ConfirmPage({
       await Promise.all(
         toConfirm.map((q) => patchQuestion(q.id, { status: "confirmed" }))
       );
-      const { session_id, questions: sessionQuestionIds } = await createSession(id, mode);
+      const { session_id, questions: sessionQuestionIds } = await createSession(setId, mode);
       const byId = new Map<string, Question>(
         questions.map((q) => [q.id, { ...q, status: "confirmed" as Question["status"] }])
       );
@@ -152,5 +153,15 @@ export default function ConfirmPage({
         </Button>
       </div>
     </ScreenShell>
+  );
+}
+
+export default function ConfirmPage(props: {
+  params: Promise<{ setId: string }>;
+}) {
+  return (
+    <Suspense fallback={null}>
+      <ConfirmScreen {...props} />
+    </Suspense>
   );
 }
