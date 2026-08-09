@@ -1,19 +1,22 @@
+import Image from "next/image";
+
 type Contributor = {
   name: string;
   role: string;
   initials: string;
   paper: string;
+  photo?: string;
   linkedin?: string;
   whatsapp?: string;
 };
 
-// Real names, still missing real photos/links — swap those in before
-// launch. Infra and Design are genuinely open invite slots, not
-// placeholders for someone unnamed.
+// Still missing personal LinkedIn/WhatsApp links for the flip-card backs —
+// swap those in before launch. Infra and Design are genuinely open invite
+// slots, not placeholders for someone unnamed.
 const contributors: Contributor[] = [
-  { name: "Akeem Jr Odebiyi", role: "Project Lead", initials: "AO", paper: "bg-mint-200" },
-  { name: "Eyitayo Obembe", role: "Backend & Pipeline", initials: "EO", paper: "bg-gold-300" },
-  { name: "Henry Fakorode", role: "Backend (Floater)", initials: "HF", paper: "bg-mint-400" },
+  { name: "Akeem Jr Odebiyi", role: "Project Lead", initials: "AO", paper: "bg-mint-200", photo: "/Akeem.jpg" },
+  { name: "Eyitayo Obembe", role: "Backend & Pipeline", initials: "EO", paper: "bg-gold-300", photo: "/Eyitayo.PNG" },
+  { name: "Henry Fakorode", role: "Backend (Floater)", initials: "HF", paper: "bg-mint-400", photo: "/Henry.jpg" },
   { name: "Afolabi Olanrewaju", role: "Publicity Graphics Designer", initials: "AF", paper: "bg-gold-500/30" },
   { name: "—", role: "Design (open)", initials: "DS", paper: "bg-paper-dim" },
 ];
@@ -54,52 +57,69 @@ function ContributorCard({
     // Focusable regardless of hasLinks — :focus-within is also how the flip
     // triggers on tap (touch devices don't have :hover), so an open slot
     // needs to be reachable too, not just cards with real links.
+    //
+    // Three layers on purpose: .flip-card owns perspective only, .flip-tilt
+    // owns the resting per-card rotate only, .flip-inner owns the animated
+    // flip only. See globals.css for why each transform needs its own
+    // element instead of sharing one.
     <div className="flip-card aspect-[3/4] w-full" tabIndex={0}>
-      <div className={`flip-inner ${tilt}`}>
-        {/* front */}
-        <div className="flip-front tape-corner relative flex h-full flex-col rounded-sm bg-paper-card p-3 shadow-lg ring-1 ring-black/10">
-          <div
-            className={`flex min-h-0 flex-1 flex-col items-center justify-center rounded-[2px] ${contributor.paper}`}
-          >
-            <span className="font-display text-4xl font-bold text-ink-900/70">
-              {contributor.initials}
-            </span>
-          </div>
-          <div className="shrink-0 pt-2 text-center">
-            <p className="font-display text-sm font-bold text-ink-900">
-              {contributor.name}
-            </p>
-            <p className="text-xs text-ink-600">{contributor.role}</p>
-          </div>
-        </div>
-
-        {/* back */}
-        <div className="flip-back bg-grain flex flex-col items-center justify-center gap-3 rounded-sm bg-forest-700 p-4 text-center shadow-lg ring-1 ring-black/10">
-          <p className="font-display text-sm font-bold text-mint-200">
-            {contributor.name}
-          </p>
-          {hasLinks ? (
-            <div className="flex gap-3">
-              {contributor.linkedin && (
-                <a
-                  href={contributor.linkedin}
-                  className="rounded-full bg-mint-400 px-3 py-1.5 text-xs font-bold text-forest-900"
-                >
-                  LinkedIn
-                </a>
-              )}
-              {contributor.whatsapp && (
-                <a
-                  href={contributor.whatsapp}
-                  className="rounded-full bg-gold-500 px-3 py-1.5 text-xs font-bold text-forest-900"
-                >
-                  WhatsApp
-                </a>
+      <div className={`flip-tilt ${tilt}`}>
+        <div className="flip-inner">
+          {/* front */}
+          <div className="flip-front tape-corner relative flex h-full flex-col rounded-sm bg-paper-card p-3 shadow-lg ring-1 ring-black/10">
+            <div
+              className={`relative flex min-h-0 flex-1 flex-col items-center justify-center overflow-hidden rounded-[2px] ${contributor.paper}`}
+            >
+              {contributor.photo ? (
+                <Image
+                  src={contributor.photo}
+                  alt={contributor.name}
+                  fill
+                  sizes="(min-width: 640px) 25vw, 50vw"
+                  className="object-cover"
+                />
+              ) : (
+                <span className="font-display text-4xl font-bold text-ink-900/70">
+                  {contributor.initials}
+                </span>
               )}
             </div>
-          ) : (
-            <p className="text-xs text-mint-200/70">This slot&apos;s open</p>
-          )}
+            <div className="shrink-0 pt-2 text-center">
+              <p className="font-display text-sm font-bold text-ink-900">
+                {contributor.name}
+              </p>
+              <p className="text-xs text-ink-600">{contributor.role}</p>
+            </div>
+          </div>
+
+          {/* back */}
+          <div className="flip-back bg-grain flex flex-col items-center justify-center gap-3 rounded-sm bg-forest-700 p-4 text-center shadow-lg ring-1 ring-black/10">
+            <p className="font-display text-sm font-bold text-mint-200">
+              {contributor.name}
+            </p>
+            {hasLinks ? (
+              <div className="flex gap-3">
+                {contributor.linkedin && (
+                  <a
+                    href={contributor.linkedin}
+                    className="rounded-full bg-mint-400 px-3 py-1.5 text-xs font-bold text-forest-900"
+                  >
+                    LinkedIn
+                  </a>
+                )}
+                {contributor.whatsapp && (
+                  <a
+                    href={contributor.whatsapp}
+                    className="rounded-full bg-gold-500 px-3 py-1.5 text-xs font-bold text-forest-900"
+                  >
+                    WhatsApp
+                  </a>
+                )}
+              </div>
+            ) : (
+              <p className="text-xs text-mint-200/70">This slot&apos;s open</p>
+            )}
+          </div>
         </div>
       </div>
     </div>
