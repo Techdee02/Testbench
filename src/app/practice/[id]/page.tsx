@@ -143,17 +143,36 @@ export default function PracticePage({
     setTheoryDraft("");
   }
 
+  function endSession() {
+    const answered = answersRef.current.length;
+    const ok = window.confirm(
+      answered < total
+        ? `End now? You've answered ${answered} of ${total} — you'll see results for those only.`
+        : "End this session and see your results?"
+    );
+    if (ok) finish();
+  }
+
   return (
     <ScreenShell>
       <div className="mb-6 flex items-center justify-between">
         <p className="font-display text-sm font-bold uppercase tracking-[0.2em] text-forest-700">
           Question {index + 1} of {total}
         </p>
-        {session.mode === "timed" && timeLeft !== null && (
-          <Tag tone={timeLeft < 30 ? "danger" : "mint"}>
-            ⏱ {formatClock(timeLeft)}
-          </Tag>
-        )}
+        <div className="flex items-center gap-3">
+          {session.mode === "timed" && timeLeft !== null && (
+            <Tag tone={timeLeft < 30 ? "danger" : "mint"}>
+              ⏱ {formatClock(timeLeft)}
+            </Tag>
+          )}
+          <button
+            type="button"
+            onClick={endSession}
+            className="text-xs font-semibold text-ink-600 hover:text-danger"
+          >
+            End session
+          </button>
+        </div>
       </div>
 
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-paper-dim">

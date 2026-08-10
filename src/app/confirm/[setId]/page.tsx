@@ -122,7 +122,13 @@ function ConfirmScreen({
 
   return (
     <ScreenShell>
-      <p className="font-display text-xs font-bold uppercase tracking-[0.2em] text-forest-700">
+      <Link
+        href="/upload"
+        className="inline-block text-sm font-semibold text-forest-700 hover:underline"
+      >
+        &larr; Not this one? Upload something else
+      </Link>
+      <p className="mt-4 font-display text-xs font-bold uppercase tracking-[0.2em] text-forest-700">
         Step 2 of 3
       </p>
       <h1 className="mt-2 font-display text-3xl font-bold tracking-tight">
