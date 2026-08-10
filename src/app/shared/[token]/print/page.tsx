@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { PrintHeader } from "@/components/shared/PrintHeader";
 import { ReadOnlyQuestionList } from "@/components/shared/ReadOnlyQuestionList";
 import { getSharedSet } from "@/lib/api";
 import { publicQuestionToQuestion } from "@/lib/practiceState";
@@ -47,9 +48,12 @@ export default function SharedSetPrintPage({
         </Link>
         <Button onClick={() => window.print()}>Print</Button>
       </div>
+      <PrintHeader />
       <h1 className="mb-6 font-display text-2xl font-bold">
         Practice set — {questions.length} question{questions.length === 1 ? "" : "s"}
       </h1>
+      {/* No answers toggle here on purpose — QuestionPublicResponse never
+          carries correct_answer, so there's nothing for one to reveal. */}
       <ReadOnlyQuestionList questions={questions} />
     </div>
   );
