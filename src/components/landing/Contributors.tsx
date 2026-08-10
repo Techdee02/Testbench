@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 
 type Contributor = {
@@ -57,8 +60,8 @@ export function Contributors() {
           Built by actual students.
         </h2>
         <p className="mt-3 max-w-xl text-mint-200/85">
-          Hover or tap a card. This is the one thing on this page we spent
-          real time on.
+          Tap a card. This is the one thing on this page we spent real time
+          on.
         </p>
 
         <div className="mt-14 grid grid-cols-2 gap-8 sm:grid-cols-4">
@@ -78,19 +81,33 @@ function ContributorCard({
   contributor: Contributor;
   index: number;
 }) {
+  // Click/tap-state driven, not CSS :hover. Hover flipping raced with the
+  // click itself: moving the pointer those last few pixels toward a link
+  // could graze outside .flip-card's box for even a frame, dropping :hover
+  // and flipping the card back to front right as the click landed — so the
+  // click hit the front face instead of the link. Confirmed live: even a
+  // browser-automated, actionability-checked click on the LinkedIn link
+  // never fired a click event on the anchor. A real open/closed state has
+  // no such race — :focus-within stays too, for keyboard nav.
+  const [open, setOpen] = useState(false);
   const tilt = ["tilt-1", "tilt-2", "tilt-3", "tilt-4"][index % 4];
   const hasLinks = contributor.linkedin || contributor.whatsapp;
 
   return (
-    // Focusable regardless of hasLinks — :focus-within is also how the flip
-    // triggers on tap (touch devices don't have :hover), so an open slot
-    // needs to be reachable too, not just cards with real links.
-    //
-    // Three layers on purpose: .flip-card owns perspective only, .flip-tilt
-    // owns the resting per-card rotate only, .flip-inner owns the animated
-    // flip only. See globals.css for why each transform needs its own
-    // element instead of sharing one.
-    <div className="flip-card aspect-[3/4] w-full" tabIndex={0}>
+    <div
+      className={`flip-card aspect-[3/4] w-full ${open ? "is-open" : ""}`}
+      tabIndex={0}
+      role="button"
+      aria-pressed={open}
+      aria-label={contributor.name}
+      onClick={() => setOpen((o) => !o)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          setOpen((o) => !o);
+        }
+      }}
+    >
       <div className={`flip-tilt ${tilt}`}>
         <div className="flip-inner">
           {/* front */}
@@ -132,6 +149,7 @@ function ContributorCard({
                     href={contributor.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
                     className="rounded-full bg-mint-400 px-3 py-1.5 text-xs font-bold text-forest-900"
                   >
                     LinkedIn
@@ -142,6 +160,7 @@ function ContributorCard({
                     href={contributor.whatsapp}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
                     className="rounded-full bg-gold-500 px-3 py-1.5 text-xs font-bold text-forest-900"
                   >
                     WhatsApp
