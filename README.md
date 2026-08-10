@@ -41,18 +41,23 @@ handled):
   in local state for when that lands (see `ShareControl.tsx`); it isn't
   sent anywhere yet.
 - Discover items don't carry a `share_token` (only non-null for
-  `visibility: "shared"` sets, confirmed live), and there's no
-  fetch-by-id route for a `public` set either — a `/discover/sets` item
-  has no working path to its questions today. The Discover page lists
-  title/count only; it doesn't link through to a set. This is flagged as
-  a real gap, not guessed at with an invented endpoint.
+  `visibility: "shared"` sets, confirmed live) and there's no dedicated
+  fetch-by-id route for a `public` set — but `GET /sets/:id/questions`
+  (the same route the confirm screen uses) turns out to be
+  visibility-aware: confirmed live that a non-owner, or no auth at all,
+  gets a 404 for a private/shared set but the reduced public shape for a
+  `public` one. `getPublicSetQuestions` in `api.ts` calls that same route
+  with `skipAuth`, which is what `/discover/[setId]` uses — not a new or
+  guessed-at endpoint, just a second, unauthenticated caller of one
+  that's already documented.
 
 ## What's here
 
 - `src/app/` — screens: landing, `/auth`, `/upload`, `/processing/[id]`,
   `/confirm/[setId]`, `/practice/[id]`, `/results/[id]`, plus sharing:
-  `/discover`, `/shared/[token]` (public, read-only), `/print/[setId]`
-  (owner) and `/shared/[token]/print` (shared)
+  `/discover` and `/discover/[setId]` (public), `/shared/[token]` (public,
+  read-only), and print views for each of owner/shared/discovered
+
 - `src/app/api/` — mock backend (in-memory store in `src/lib/store.ts`)
   standing in for the Floater's FastAPI service until it's live
 - `src/components/` — shared UI, landing sections, the confirm screen's

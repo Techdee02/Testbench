@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { ScreenShell } from "@/components/ScreenShell";
 import { Button } from "@/components/ui/Button";
 import { ApiError, getDiscoverSets } from "@/lib/api";
@@ -56,9 +57,8 @@ export default function DiscoverPage() {
         Sets other students made public.
       </h1>
       <p className="mt-2 max-w-lg text-ink-600">
-        Browsing is open to everyone, no account needed. Opening a set from
-        here to actually practice it is coming soon — for now, sharing a
-        direct link from the confirm screen already works.
+        Browsing is open to everyone, no account needed. Tap a set to look
+        it over or jump straight into practice.
       </p>
 
       {loading && (
@@ -83,9 +83,10 @@ export default function DiscoverPage() {
             {items.map((item, i) => {
               const tilt = ["tilt-1", "tilt-2", "tilt-3", "tilt-4"][i % 4];
               return (
-                <div
+                <Link
                   key={item.id}
-                  className={`torn-top ${tilt} rounded-b-xl bg-paper-card p-5 shadow-md ring-1 ring-ink-900/10`}
+                  href={`/discover/${item.id}`}
+                  className={`torn-top ${tilt} block rounded-b-xl bg-paper-card p-5 shadow-md ring-1 ring-ink-900/10 transition-transform hover:-translate-y-0.5`}
                 >
                   <p className="font-display text-lg font-bold">
                     {item.title ?? "Untitled set"}
@@ -94,7 +95,7 @@ export default function DiscoverPage() {
                     {item.question_count} question
                     {item.question_count === 1 ? "" : "s"}
                   </p>
-                </div>
+                </Link>
               );
             })}
           </div>

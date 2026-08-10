@@ -128,6 +128,17 @@ export function getQuestions(setId: string) {
   return request<Question[]>(`/sets/${setId}/questions`);
 }
 
+// Same route as getQuestions, deliberately called differently — verified
+// live that GET /sets/:id/questions is visibility-aware: a non-owner (or
+// no auth at all) gets a 404 unless the set is public, in which case it
+// returns the reduced public shape (no correct_answer/confidence/
+// source_reference), same as GET /sets/shared/:token. skipAuth so a
+// visitor's stale/expired token doesn't trigger the log-out-and-redirect
+// flow on what's meant to be a public page.
+export function getPublicSetQuestions(setId: string) {
+  return request<Question[]>(`/sets/${setId}/questions`, { skipAuth: true });
+}
+
 // The deployed Floater only persists stem, correct_answer, and status on
 // PATCH — there's no options field yet, so MCQ option-text edits stay local
 // to the confirm screen until the backend grows one.
